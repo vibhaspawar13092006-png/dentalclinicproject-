@@ -65,10 +65,15 @@ export default function UserDashboard() {
 
   useEffect(() => {
     if (isLoaded && user) {
-      setName(user.fullName || "")
-      setEmail(user.emailAddresses[0]?.emailAddress || "")
-      setRole((user.publicMetadata?.role as string) || "user")
-      fetchAppointments()
+      const userRole = (user.publicMetadata?.role as string) || "user"
+      if (userRole === "admin") {
+        window.location.href = "/admin"
+      } else {
+        setName(user.fullName || "")
+        setEmail(user.emailAddresses[0]?.emailAddress || "")
+        setRole(userRole)
+        fetchAppointments()
+      }
     }
   }, [isLoaded, user])
 

@@ -18,7 +18,8 @@ import {
   Activity,
   FileText,
   ShieldAlert,
-  ArrowLeft
+  ArrowLeft,
+  Shield
 } from "lucide-react"
 
 interface Appointment {
@@ -38,10 +39,30 @@ export default function AdminDashboard() {
   const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedService, setSelectedService] = useState("All")
+  const [togglingRole, setTogglingRole] = useState(false)
 
   // Check if role is admin
   const role = user?.publicMetadata?.role as string || "user"
   const isAdmin = role === "admin"
+
+  const handleToggleRole = async () => {
+    setTogglingRole(true)
+    try {
+      const res = await fetch("/api/user/toggle-role", {
+        method: "POST",
+      })
+      if (res.ok) {
+        alert("Success! Your role has been updated to User. Redirecting to Patient Portal...")
+        window.location.href = "/dashboard"
+      } else {
+        alert("Failed to toggle role.")
+      }
+    } catch (err) {
+      alert("Error toggling role.")
+    } finally {
+      setTogglingRole(false)
+    }
+  }
 
   useEffect(() => {
     if (isLoaded && isSignedIn && isAdmin) {
@@ -408,6 +429,34 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+        {/* Role Toggle Developer section */}
+        <Card className="border-dashed border border-amber-500/30 bg-amber-500/5 mt-12">
+          <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <Shield className="size-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  Developer Role Switcher
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  Your current account role is <span className="font-semibold capitalize text-foreground">{role}</span>. Toggle this to test Role-Based Access Controls on /dashboard.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                disabled={togglingRole}
+                onClick={handleToggleRole}
+                className="rounded-xl border border-amber-500/20 hover:bg-amber-500/10"
+              >
+                {togglingRole ? "Updating..." : `Switch to User`}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   )
