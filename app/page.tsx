@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation"
+import { auth } from "@clerk/nextjs/server"
 import { SiteHeader } from "@/components/site-header"
 import { Hero } from "@/components/hero"
 import { Services } from "@/components/services"
@@ -7,7 +9,12 @@ import { Testimonials } from "@/components/testimonials"
 import { Contact } from "@/components/contact"
 import { SiteFooter } from "@/components/site-footer"
 
-export default function Page() {
+export default async function Page() {
+  const { userId } = await auth()
+  if (userId) {
+    redirect("/dashboard")
+  }
+
   return (
     <>
       <SiteHeader />
@@ -23,3 +30,4 @@ export default function Page() {
     </>
   )
 }
+

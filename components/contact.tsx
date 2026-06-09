@@ -1,31 +1,9 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { MapPin, Phone, Mail, Clock, CheckCircle2 } from "lucide-react"
-
-const services = [
-  "General Checkup",
-  "Teeth Cleaning",
-  "Cosmetic Consultation",
-  "Teeth Whitening",
-  "Emergency Visit",
-  "Other",
-]
+import { SignInButton, Show } from "@clerk/nextjs"
 
 const info = [
   { icon: MapPin, label: "Address", value: "124 Maple Avenue, Brookline" },
@@ -35,51 +13,6 @@ const info = [
 ]
 
 export function Contact() {
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [service, setService] = useState(services[0])
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    const formData = new FormData(e.currentTarget)
-    const name = formData.get("name")
-    const phone = formData.get("phone")
-    const email = formData.get("email")
-    const message = formData.get("message")
-
-    try {
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          phone,
-          email,
-          service,
-          message,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Something went wrong")
-      }
-
-      setSubmitted(true)
-    } catch (err: any) {
-      setError(err.message || "An error occurred while scheduling your appointment.")
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
     <section id="contact" className="bg-secondary/40 py-16 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -111,106 +44,47 @@ export function Contact() {
             </ul>
           </div>
 
-          <Card className="rounded-3xl">
-            <CardContent className="p-6 sm:p-8">
-              {submitted ? (
-                <div className="flex h-full flex-col items-center justify-center gap-4 py-12 text-center">
-                  <CheckCircle2 className="size-14 text-primary" />
-                  <h3 className="font-heading text-2xl font-semibold text-foreground">
-                    Request received!
-                  </h3>
-                  <p className="max-w-sm text-muted-foreground">
-                    Thank you for reaching out. Our team will contact you shortly
-                    to confirm your appointment.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="rounded-full"
-                    onClick={() => setSubmitted(false)}
-                  >
-                    Submit another request
-                  </Button>
+          <Card className="rounded-3xl border-border bg-card/60 shadow-xl backdrop-blur-sm flex flex-col justify-center">
+            <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center gap-6 py-12">
+              <Show when="signed-out">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Mail className="size-7" />
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                  {error && (
-                    <div className="rounded-xl bg-destructive/10 p-3 text-sm font-medium text-destructive">
-                      {error}
-                    </div>
-                  )}
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="name">Full name</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        required
-                        type="text"
-                        placeholder="Jane Doe"
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        required
-                        type="tel"
-                        placeholder="(555) 000-0000"
-                        disabled={loading}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      required
-                      type="email"
-                      placeholder="jane@example.com"
-                      disabled={loading}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="service">Service</Label>
-                    <Select value={service} onValueChange={setService} disabled={loading}>
-                      <SelectTrigger id="service" className="w-full">
-                        <SelectValue placeholder="Select a service" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {services.map((s) => (
-                            <SelectItem key={s} value={s}>
-                              {s}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="message">Message (optional)</Label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      rows={3}
-                      placeholder="Tell us anything we should know..."
-                      className="resize-none"
-                      disabled={loading}
-                    />
-                  </div>
-
-                  <Button type="submit" size="lg" className="mt-2 w-full rounded-full" disabled={loading}>
-                    {loading ? "Requesting..." : "Request Appointment"}
+                <div className="space-y-2">
+                  <h3 className="font-heading text-2xl font-bold tracking-tight text-foreground">
+                    Book Your Appointment
+                  </h3>
+                  <p className="text-muted-foreground text-sm max-w-sm">
+                    To request a dental treatment or manage your scheduled visits, please sign in or register a patient account.
+                  </p>
+                </div>
+                <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
+                  <Button size="lg" className="rounded-full w-full max-w-[240px]">
+                    Sign In to Book
                   </Button>
-                </form>
-              )}
+                </SignInButton>
+              </Show>
+              <Show when="signed-in">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+                  <CheckCircle2 className="size-7" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-heading text-2xl font-bold tracking-tight text-foreground">
+                    You are Signed In
+                  </h3>
+                  <p className="text-muted-foreground text-sm max-w-sm">
+                    Access your Patient Dashboard to request new treatments and manage your records.
+                  </p>
+                </div>
+                <Button
+                  render={<a href="/dashboard" />}
+                  nativeButton={false}
+                  size="lg"
+                  className="rounded-full w-full max-w-[240px]"
+                >
+                  Go to Dashboard
+                </Button>
+              </Show>
             </CardContent>
           </Card>
         </div>
