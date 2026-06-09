@@ -44,3 +44,32 @@ export async function POST(request: Request) {
     )
   }
 }
+
+export async function GET(request: Request) {
+  try {
+    const authHeader = request.headers.get("authorization")
+    const expectedPassword = process.env.ADMIN_PASSWORD || "admin123"
+
+    if (!authHeader || authHeader !== `Bearer ${expectedPassword}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const client = await clientPromise
+    const db = client.db("dental_clinic")
+    const appointmentsCollection = db.collection("appointments")
+
+    const appointments = await appointmentsCollection
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray()
+
+    return NextResponse.json(appointments)
+  } catch (error: any) {
+    console.error("Database connection/query error:", error)
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
+  }
+}
+
