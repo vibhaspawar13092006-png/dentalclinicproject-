@@ -4,6 +4,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Menu, X, Plus } from "lucide-react"
+import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs"
+
 
 const navLinks = [
   { label: "Services", href: "#services" },
@@ -55,6 +57,23 @@ export function SiteHeader() {
           >
             Book Appointment
           </Button>
+
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <Button variant="ghost" size="sm" className="rounded-full">
+                Sign In
+              </Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <Button size="sm" className="rounded-full">
+                Sign Up
+              </Button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
+
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
@@ -90,9 +109,31 @@ export function SiteHeader() {
             >
               Book Appointment
             </Button>
+
+            <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4">
+              <Show when="signed-out">
+                <SignInButton mode="modal">
+                  <Button variant="outline" className="w-full rounded-full">
+                    Sign In
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button className="w-full rounded-full">
+                    Sign Up
+                  </Button>
+                </SignUpButton>
+              </Show>
+              <Show when="signed-in">
+                <div className="flex items-center gap-3 px-3 py-2">
+                  <UserButton />
+                  <span className="text-sm font-medium">Account Settings</span>
+                </div>
+              </Show>
+            </div>
           </nav>
         </div>
       )}
+
     </header>
   )
 }
