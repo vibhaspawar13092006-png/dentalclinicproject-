@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { auth, currentUser } from "@clerk/nextjs/server"
 import clientPromise from "@/lib/mongodb"
 
 export async function POST(request: Request) {
@@ -14,6 +15,8 @@ export async function POST(request: Request) {
       )
     }
 
+    const { userId } = await auth()
+
     const client = await clientPromise
     const db = client.db("dental_clinic")
     const appointmentsCollection = db.collection("appointments")
@@ -24,6 +27,7 @@ export async function POST(request: Request) {
       phone,
       service,
       message: message || "",
+      userId: userId || null,
       createdAt: new Date(),
     }
 
@@ -47,21 +51,39 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const expectedPassword = process.env.ADMIN_PASSWORD || "admin123"
-
-    if (!authHeader || authHeader !== `Bearer ${expectedPassword}`) {
+    const { userId } = await auth()
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    const user = await currentUser()
+    const role = user?.publicMetadata?.role
+    const userEmail = user?.emailAddresses[0]?.emailAddress
 
     const client = await clientPromise
     const db = client.db("dental_clinic")
     const appointmentsCollection = db.collection("appointments")
 
-    const appointments = await appointmentsCollection
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray()
+    let appointments
+    if (role === "admin") {
+      // Admin gets all appointments
+      appointments = await appointmentsCollection
+        .find({})
+        .sort({ createdAt: -1 })
+        .toArray()
+    } else {
+      // Regular user gets only their appointments (matching userId or registered email)
+      const query = {
+        $or: [
+          { userId: userId },
+          ...(userEmail ? [{ email: userEmail }] : []),
+        ],
+      }
+      appointments = await appointmentsCollection
+        .find(query)
+        .sort({ createdAt: -1 })
+        .toArray()
+    }
 
     return NextResponse.json(appointments)
   } catch (error: any) {
@@ -72,4 +94,5 @@ export async function GET(request: Request) {
     )
   }
 }
+
 

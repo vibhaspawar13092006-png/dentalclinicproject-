@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useTransition } from "react"
+import { useState, useEffect } from "react"
+import { useUser, SignOutButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -10,14 +11,14 @@ import {
   Trash2,
   Filter,
   Calendar,
-  User,
   Mail,
   Phone,
   LogOut,
-  CheckCircle,
   Clock,
   Activity,
-  FileText
+  FileText,
+  ShieldAlert,
+  ArrowLeft
 } from "lucide-react"
 
 interface Appointment {
@@ -31,60 +32,39 @@ interface Appointment {
 }
 
 export default function AdminDashboard() {
-  const [password, setPassword] = useState("")
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [error, setError] = useState("")
+  const { user, isLoaded, isSignedIn } = useUser()
   const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedService, setSelectedService] = useState("All")
-  const [isPending, startTransition] = useTransition()
 
-  // Check if password exists in session storage
+  // Check if role is admin
+  const role = user?.publicMetadata?.role as string || "user"
+  const isAdmin = role === "admin"
+
   useEffect(() => {
-    const savedPassword = sessionStorage.getItem("admin_password")
-    if (savedPassword) {
-      verifyPassword(savedPassword)
+    if (isLoaded && isSignedIn && isAdmin) {
+      fetchAppointments()
+    } else if (isLoaded && (!isSignedIn || !isAdmin)) {
+      setLoading(false)
     }
-  }, [])
+  }, [isLoaded, isSignedIn, isAdmin])
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    verifyPassword(password)
-  }
-
-  const verifyPassword = async (passToVerify: string) => {
-    setLoading(true)
-    setError("")
+  const fetchAppointments = async () => {
     try {
-      const res = await fetch("/api/appointments", {
-        headers: {
-          Authorization: `Bearer ${passToVerify}`,
-        },
-      })
-
+      const res = await fetch("/api/appointments")
       if (res.ok) {
         const data = await res.json()
         setAppointments(data)
-        setIsAuthenticated(true)
-        sessionStorage.setItem("admin_password", passToVerify)
-        setPassword(passToVerify)
       } else {
-        setError("Invalid admin password. Please try again.")
-        sessionStorage.removeItem("admin_password")
+        setError("Failed to fetch appointments. You may not have administrative access.")
       }
     } catch (err) {
-      setError("An error occurred during authentication.")
+      setError("An error occurred while loading data.")
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("admin_password")
-    setIsAuthenticated(false)
-    setAppointments([])
-    setPassword("")
   }
 
   const handleDelete = async (id: string) => {
@@ -95,9 +75,6 @@ export default function AdminDashboard() {
     try {
       const res = await fetch(`/api/appointments/${id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${password}`,
-        },
       })
 
       if (res.ok) {
@@ -142,43 +119,80 @@ export default function AdminDashboard() {
 
   const servicesList = ["All", ...Array.from(new Set(appointments.map((app) => app.service)))]
 
-  if (!isAuthenticated) {
+  if (!isLoaded || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-radial from-background to-secondary/30 p-4">
-        <Card className="w-full max-w-md border-border/80 bg-card/60 shadow-2xl backdrop-blur-lg">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
-              <Plus className="size-6" strokeWidth={2.5} />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+          <p className="text-muted-foreground text-sm font-medium">Verifying credentials...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isSignedIn) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md border-border/80 bg-card/60 shadow-2xl backdrop-blur-lg text-center">
+          <CardHeader>
+            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+              <ShieldAlert className="size-6" />
             </div>
             <CardTitle className="font-heading text-2xl font-bold tracking-tight">
-              Sheetal Dental Clinic
+              Sign In Required
             </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Please enter the administrator password to access the portal.
+            <CardDescription>
+              Please log in to access the administrator panel.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Password</label>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-xl border-border bg-background/50 px-4 py-2.5 outline-none focus:border-primary"
-                  required
-                />
-              </div>
-              {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+          <CardContent className="space-y-4">
+            <Button
+              render={<a href="/" />}
+              nativeButton={false}
+              className="w-full rounded-xl py-2.5 font-semibold"
+            >
+              Go to Home to Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md border-border/80 bg-card/60 shadow-2xl backdrop-blur-lg text-center">
+          <CardHeader>
+            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <ShieldAlert className="size-6" />
+            </div>
+            <CardTitle className="font-heading text-2xl font-bold tracking-tight">
+              Access Denied
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              You do not have permission to view this page. Admin role is required.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-xs text-muted-foreground">
+              Tip: You can visit your Patient Dashboard and click the "Developer Role Switcher" button to promote your account to Admin for testing.
+            </p>
+            <div className="flex flex-col gap-2">
               <Button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-xl py-2.5 font-semibold transition-all hover:opacity-90"
+                render={<a href="/dashboard" />}
+                nativeButton={false}
+                className="w-full rounded-xl py-2.5 font-semibold flex items-center justify-center gap-2"
               >
-                {loading ? "Authenticating..." : "Unlock Dashboard"}
+                <ArrowLeft className="size-4" />
+                Go to Dashboard
               </Button>
-            </form>
+              <SignOutButton>
+                <Button variant="outline" className="w-full rounded-xl py-2.5 font-semibold text-destructive">
+                  Sign Out
+                </Button>
+              </SignOutButton>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -200,18 +214,20 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="hidden text-sm font-medium text-muted-foreground md:inline-block">
-              Welcome, Clinic Staff
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-full border-border hover:bg-muted text-destructive hover:text-destructive"
-            >
-              <LogOut className="size-4" />
-              Logout
-            </Button>
+            <div className="hidden sm:flex flex-col text-right">
+              <span className="text-sm font-semibold">{user?.fullName}</span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 capitalize">Administrator</span>
+            </div>
+            <SignOutButton>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-1.5 rounded-full border-border hover:bg-muted text-destructive hover:text-destructive"
+              >
+                <LogOut className="size-4" />
+                Logout
+              </Button>
+            </SignOutButton>
           </div>
         </div>
       </header>
@@ -225,7 +241,23 @@ export default function AdminDashboard() {
               View, search, and manage incoming patient requests for Sheetal Dental Clinic.
             </p>
           </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              render={<a href="/dashboard" />}
+              nativeButton={false}
+              className="rounded-xl border-border"
+            >
+              Go to Patient Portal
+            </Button>
+          </div>
         </div>
+
+        {error && (
+          <Card className="border-destructive bg-destructive/5 text-destructive p-4 rounded-xl">
+            <p className="text-sm font-semibold">{error}</p>
+          </Card>
+        )}
 
         {/* Stats Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { ObjectId } from "mongodb"
+import { auth, currentUser } from "@clerk/nextjs/server"
 import clientPromise from "@/lib/mongodb"
 
 export async function DELETE(
@@ -7,11 +8,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeader = request.headers.get("authorization")
-    const expectedPassword = process.env.ADMIN_PASSWORD || "admin123"
-
-    if (!authHeader || authHeader !== `Bearer ${expectedPassword}`) {
+    const { userId } = await auth()
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const user = await currentUser()
+    const role = user?.publicMetadata?.role
+
+    if (role !== "admin") {
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
     }
 
     const { id } = await params
@@ -47,3 +53,4 @@ export async function DELETE(
     )
   }
 }
+

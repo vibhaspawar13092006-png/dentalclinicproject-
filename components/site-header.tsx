@@ -59,12 +59,12 @@ export function SiteHeader() {
           </Button>
 
           <Show when="signed-out">
-            <SignInButton mode="modal">
+            <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
               <Button variant="ghost" size="sm" className="rounded-full">
                 Sign In
               </Button>
             </SignInButton>
-            <SignUpButton mode="modal">
+            <SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
               <Button size="sm" className="rounded-full">
                 Sign Up
               </Button>
@@ -112,12 +112,12 @@ export function SiteHeader() {
 
             <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4">
               <Show when="signed-out">
-                <SignInButton mode="modal">
+                <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
                   <Button variant="outline" className="w-full rounded-full">
                     Sign In
                   </Button>
                 </SignInButton>
-                <SignUpButton mode="modal">
+                <SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
                   <Button className="w-full rounded-full">
                     Sign Up
                   </Button>
