@@ -211,21 +211,35 @@ export default function UserDashboard() {
   }
 
   const handleToggleRole = async () => {
+    let passcode = ""
+    if (role !== "admin") {
+      const input = prompt("Enter Administrator Security Passcode:")
+      if (!input) {
+        return
+      }
+      passcode = input
+    }
     setTogglingRole(true)
     try {
       const res = await fetch("/api/user/toggle-role", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passcode: passcode.trim() }),
       })
-      if (res.ok) {
-        const data = await res.json()
+      const data = await res.json()
+      if (res.ok && data.success) {
         setRole(data.role)
-        alert(`Success! Your role has been updated to "${data.role}". Please refresh to apply fully.`)
-        window.location.reload()
+        alert(`Success! Switched to ${data.role === "admin" ? "Admin Portal" : "Patient View"}.`)
+        if (data.role === "admin") {
+          window.location.href = "/admin"
+        } else {
+          window.location.reload()
+        }
       } else {
-        alert("Failed to toggle role.")
+        alert(data.error || "Incorrect admin passcode! Access denied.")
       }
     } catch (err) {
-      alert("Error toggling role.")
+      alert("Error toggling portal.")
     } finally {
       setTogglingRole(false)
     }
@@ -847,44 +861,44 @@ export default function UserDashboard() {
           </div>
         </div>
 
-        {/* Role Toggle Developer section (Only visible if already an admin) */}
-        {role === "admin" && (
-          <Card className="border-dashed border border-amber-500/30 bg-amber-500/5 mt-12">
-            <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                  <Shield className="size-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
-                    Administrator Controls
-                  </h4>
-                  <p className="text-xs text-muted-foreground">
-                    Your current account role is <span className="font-semibold capitalize text-foreground">{role}</span>.
-                  </p>
-                </div>
+        {/* Portal Switcher */}
+        <Card className="border-dashed border border-amber-500/30 bg-amber-500/5 mt-12">
+          <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <Shield className="size-5" />
               </div>
-              <div className="flex gap-2">
+              <div>
+                <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  Portal Switcher
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  Current portal: <span className="font-semibold capitalize text-foreground">{role === "admin" ? "Admin Portal" : "Patient Portal"}</span>. Switch between patient dashboard and clinic doctor panel.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              {role === "admin" && (
                 <Button
                   variant="outline"
                   render={<a href="/admin" />}
                   nativeButton={false}
                   className="rounded-xl text-primary border-primary/20 hover:bg-primary/5"
                 >
-                  Visit Admin Panel
+                  Go to Admin Panel
                 </Button>
-                <Button
-                  variant="secondary"
-                  disabled={togglingRole}
-                  onClick={handleToggleRole}
-                  className="rounded-xl border border-amber-500/20 hover:bg-amber-500/10"
-                >
-                  {togglingRole ? "Updating..." : "Switch to Patient View"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              )}
+              <Button
+                variant="secondary"
+                disabled={togglingRole}
+                onClick={handleToggleRole}
+                className="rounded-xl border border-amber-500/20 hover:bg-amber-500/10 cursor-pointer"
+              >
+                {togglingRole ? "Verifying..." : role === "admin" ? "Switch to Patient View" : "Switch to Admin Portal (Passcode Required)"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   )

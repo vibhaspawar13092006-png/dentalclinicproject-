@@ -102,23 +102,6 @@ export function Header() {
 						</SignInButton>
 					</Show>
 					<Show when="signed-in">
-						{isAdmin ? (
-							<a
-								href="/admin"
-								className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3.5 py-1.5 text-xs font-semibold text-foreground transition-colors"
-							>
-								<Shield className="size-3 text-accent" />
-								Admin Portal
-							</a>
-						) : (
-							<a
-								href="/dashboard"
-								className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3.5 py-1.5 text-xs font-semibold text-foreground transition-colors"
-							>
-								<User className="size-3 text-primary" />
-								Patient Portal
-							</a>
-						)}
 						<UserButton />
 					</Show>
 				</div>
@@ -162,26 +145,7 @@ export function Header() {
 								{link.label}
 							</a>
 						))}
-						<div className="pt-2 border-t border-border/40 flex flex-col gap-2">
-							<a
-								href="/dashboard"
-								onClick={() => setOpen(false)}
-								className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary p-3 text-xs font-semibold text-foreground hover:bg-primary/10 transition-colors"
-							>
-								<User className="size-3.5 text-primary" />
-								Patient Portal
-							</a>
-							{isAdmin && (
-								<a
-									href="/admin"
-									onClick={() => setOpen(false)}
-									className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary p-3 text-xs font-semibold text-foreground hover:bg-primary/10 transition-colors"
-								>
-									<Shield className="size-3.5 text-accent" />
-									Admin Portal
-								</a>
-							)}
-						</div>
+
 					</div>
 					<div className="flex flex-col gap-3">
 						<a
