@@ -37,11 +37,15 @@ export function SiteFooter() {
           <div className="flex flex-col gap-3">
             <h4 className="font-semibold text-foreground">Visit Us</h4>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              124 Maple Avenue
+              Dongri, Uttan
               <br />
-              Brookline, MA 02445
+              Mira Bhayandar, Maharashtra 401106
               <br />
-              (555) 123-4567
+              <a href="tel:+917304252372" className="hover:text-primary transition-colors font-medium">
+                +91 7304252372
+              </a>
+              <br />
+              Mon–Sat: 10:00 am – 6:00 pm
             </p>
           </div>
         </div>

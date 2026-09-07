@@ -5,10 +5,23 @@ import { SignInButton, Show } from "@clerk/nextjs"
 import { ScrollReveal } from "@/components/scroll-reveal"
 
 const info = [
-  { icon: MapPin, label: "Address", value: "124 Maple Avenue, Brookline" },
-  { icon: Phone, label: "Phone", value: "(555) 123-4567" },
-  { icon: Mail, label: "Email", value: "hello@sheetaldental.com" },
-  { icon: Clock, label: "Hours", value: "Mon–Sat, 8:00am – 6:00pm" },
+  { 
+    icon: MapPin, 
+    label: "Address", 
+    value: "Dongri, Uttan, Mira Bhayandar, Maharashtra 401106",
+    link: "https://www.google.com/maps/place/7QMM%2B3X4,+Dongri,+Uttan,+Mira+Bhayandar,+Maharashtra+401106/@19.2824387,72.7848782,17z"
+  },
+  { 
+    icon: Phone, 
+    label: "Phone", 
+    value: "+91 7304252372",
+    link: "tel:+917304252372"
+  },
+  { 
+    icon: Clock, 
+    label: "Hours", 
+    value: "Mon–Sat, 10:00am – 6:00pm" 
+  },
 ]
 
 export function Contact() {
@@ -34,7 +47,7 @@ export function Contact() {
             <ScrollReveal variant="fade-up" delay={300} duration={900}>
               <p className="text-pretty text-lg leading-relaxed text-muted-foreground font-light">
                 Request an appointment and our team will confirm your visit within
-                one business day. We can&apos;t wait to welcome you.
+                one business day. We can&apos;t wait to welcome you to our clinic.
               </p>
             </ScrollReveal>
 
@@ -52,7 +65,18 @@ export function Contact() {
                   </span>
                   <div>
                     <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{item.label}</p>
-                    <p className="font-heading text-[17px] font-normal text-foreground mt-0.5">{item.value}</p>
+                    {item.link ? (
+                      <a 
+                        href={item.link} 
+                        target={item.link.startsWith("http") ? "_blank" : undefined}
+                        rel={item.link.startsWith("http") ? "noopener noreferrer" : undefined}
+                        className="font-heading text-[17px] font-normal text-foreground hover:text-primary transition-colors mt-0.5 inline-block"
+                      >
+                        {item.value}
+                      </a>
+                    ) : (
+                      <p className="font-heading text-[17px] font-normal text-foreground mt-0.5">{item.value}</p>
+                    )}
                   </div>
                 </ScrollReveal>
               ))}
@@ -66,7 +90,7 @@ export function Contact() {
                 <CardContent className="p-8 sm:p-10 flex flex-col items-center justify-center text-center gap-6 py-12">
                   <Show when="signed-out">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-accent border border-accent/15">
-                      <Mail className="size-7" />
+                      <Phone className="size-7" />
                     </div>
                     <div className="space-y-2">
                       <h3 className="font-heading text-2xl font-normal tracking-tight text-foreground">
@@ -108,6 +132,49 @@ export function Contact() {
             </ScrollReveal>
           </div>
 
+        </div>
+
+        {/* Google Maps Section */}
+        <div className="mt-16 pt-12 border-t border-border/40">
+          <ScrollReveal variant="fade-up" delay={150} duration={850}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-widest text-accent font-semibold flex items-center gap-1.5">
+                  <MapPin className="size-3.5" />
+                  Find Us on Google Maps
+                </span>
+                <h3 className="font-heading text-2xl sm:text-3xl font-normal text-foreground mt-1">
+                  Sheetal Dental Clinic Location
+                </h3>
+                <p className="text-sm text-muted-foreground font-light mt-1">
+                  Dongri, Uttan, Mira Bhayandar, Maharashtra 401106
+                </p>
+              </div>
+              <a
+                href="https://www.google.com/maps/place/7QMM%2B3X4,+Dongri,+Uttan,+Mira+Bhayandar,+Maharashtra+401106/@19.2824387,72.7848782,17z"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold px-6 py-3 shadow-md hover:bg-primary/90 transition-all hover:scale-[1.02] border border-accent/20 self-start sm:self-center"
+              >
+                <MapPin className="size-4" />
+                Get Directions
+              </a>
+            </div>
+
+            <div className="relative w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden border border-border/50 shadow-2xl bg-muted">
+              <iframe
+                title="Sheetal Dental Clinic Location Map"
+                src="https://maps.google.com/maps?q=19.2824387,72.7848782&hl=en&z=17&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={true}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full"
+              />
+            </div>
+          </ScrollReveal>
         </div>
       </div>
     </section>

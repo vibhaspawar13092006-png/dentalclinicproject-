@@ -167,7 +167,7 @@ export async function PUT(
         const notesStr = targetNotes ? `. Instructions: ${targetNotes}` : ""
         smsMessage = `Hello ${patientName}, your Sheetal Dental Clinic appointment for "${treatment}" is CONFIRMED${dateStr}${timeStr}${notesStr}. See you soon!`
       } else if (targetStatus === "cancelled") {
-        smsMessage = `Hello ${patientName}, your appointment request for "${treatment}" at Sheetal Dental Clinic has been cancelled. Please call us at (555) 123-4567 for any queries.`
+        smsMessage = `Hello ${patientName}, your appointment request for "${treatment}" at Sheetal Dental Clinic has been cancelled. Please call us at +91 7304252372 for any queries.`
       } else if (targetStatus === "pending") {
         smsMessage = `Hello ${patientName}, your appointment request status for "${treatment}" has been set back to pending confirmation.`
       } else if (targetStatus === "cancel_requested") {

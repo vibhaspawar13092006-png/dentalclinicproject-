@@ -44,10 +44,10 @@ export function SiteHeader() {
 
         <div className="hidden items-center gap-4 md:flex">
           <a
-            href="tel:+15551234567"
+            href="tel:+917304252372"
             className="text-xs font-mono tracking-wider font-semibold text-foreground hover:text-primary transition-colors"
           >
-            (555) 123-4567
+            +91 7304252372
           </a>
           <ThemeToggle />
           <Button
