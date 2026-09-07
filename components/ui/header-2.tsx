@@ -38,9 +38,9 @@ export function Header() {
 	return (
 		<header
 			className={cn(
-				'sticky top-0 z-50 mx-auto w-full max-w-5xl border-b border-transparent md:rounded-full md:border md:transition-all md:ease-out',
+				'sticky top-0 z-50 mx-auto w-full max-w-7xl border-b border-transparent md:rounded-full md:border md:transition-all md:ease-out',
 				{
-					'bg-background/80 supports-[backdrop-filter]:bg-background/50 border-border backdrop-blur-lg md:top-4 md:max-w-5xl md:shadow-lg':
+					'bg-background/80 supports-[backdrop-filter]:bg-background/50 border-border backdrop-blur-lg md:top-4 md:shadow-lg':
 						scrolled && !open,
 					'bg-background/90': open,
 				},
@@ -48,13 +48,13 @@ export function Header() {
 		>
 			<nav
 				className={cn(
-					'flex h-16 w-full items-center justify-between px-6 md:transition-all md:ease-out',
+					'flex h-16 w-full items-center justify-between px-4 sm:px-6 md:transition-all md:ease-out',
 					{
 						'md:px-8': scrolled,
 					},
 				)}
 			>
-				<a href="/" className="flex items-center gap-2.5 group">
+				<a href="/" className="flex items-center gap-2.5 group shrink-0 mr-6 xl:mr-10">
 					<span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm group-hover:scale-105 transition-transform">
 						<Plus className="size-4" strokeWidth={2.5} />
 					</span>
@@ -63,7 +63,7 @@ export function Header() {
 					</span>
 				</a>
 
-				<div className="hidden items-center gap-6 md:flex">
+				<div className="hidden items-center gap-6 xl:gap-8 lg:flex">
 					{links.map((link, i) => (
 						<a 
 							key={i} 
@@ -75,10 +75,10 @@ export function Header() {
 					))}
 				</div>
 
-				<div className="hidden items-center gap-4 md:flex">
+				<div className="hidden items-center gap-3 xl:gap-4 lg:flex shrink-0">
 					<a
 						href="tel:+917304252372"
-						className="text-xs font-mono tracking-wider font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+						className="text-xs font-mono tracking-wider font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1.5 whitespace-nowrap"
 					>
 						<Phone className="size-3.5 text-accent" />
 						+91 7304252372
@@ -87,7 +87,7 @@ export function Header() {
 					<Button
 						render={<a href="#contact" />}
 						nativeButton={false}
-						className="rounded-full bg-primary hover:bg-primary/95 text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition-all font-medium border border-accent/20 px-5"
+						className="rounded-full bg-primary hover:bg-primary/95 text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition-all font-medium border border-accent/20 px-5 text-xs whitespace-nowrap"
 					>
 						Book Appointment
 					</Button>
@@ -98,18 +98,13 @@ export function Header() {
 								Sign In
 							</Button>
 						</SignInButton>
-						<SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
-							<Button size="sm" className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 text-xs font-medium border border-border">
-								Sign Up
-							</Button>
-						</SignUpButton>
 					</Show>
 					<Show when="signed-in">
 						<UserButton />
 					</Show>
 				</div>
 
-				<div className="flex items-center gap-2 md:hidden">
+				<div className="flex items-center gap-2 lg:hidden">
 					<a
 						href="tel:+917304252372"
 						aria-label="Call clinic"
