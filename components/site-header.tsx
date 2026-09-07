@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X, Plus } from "lucide-react"
+import { Menu, X, Plus, User, Shield } from "lucide-react"
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs"
 
 
@@ -59,6 +59,12 @@ export function SiteHeader() {
           </Button>
 
           <Show when="signed-out">
+            <a
+              href="/dashboard"
+              className="text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors px-1"
+            >
+              Portal
+            </a>
             <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
               <Button variant="ghost" size="sm" className="rounded-full text-xs font-medium">
                 Sign In
@@ -71,6 +77,20 @@ export function SiteHeader() {
             </SignUpButton>
           </Show>
           <Show when="signed-in">
+            <a
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors"
+            >
+              <User className="size-3 text-primary" />
+              Patient Portal
+            </a>
+            <a
+              href="/admin"
+              className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors"
+            >
+              <Shield className="size-3 text-accent" />
+              Admin
+            </a>
             <UserButton />
           </Show>
 
@@ -102,10 +122,29 @@ export function SiteHeader() {
                 {link.label}
               </a>
             ))}
+            <div className="grid grid-cols-2 gap-2 my-2">
+              <a
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary p-3 text-xs font-semibold text-foreground hover:bg-primary/10 transition-colors"
+              >
+                <User className="size-3.5 text-primary" />
+                Patient Portal
+              </a>
+              <a
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary p-3 text-xs font-semibold text-foreground hover:bg-primary/10 transition-colors"
+              >
+                <Shield className="size-3.5 text-accent" />
+                Admin Portal
+              </a>
+            </div>
+
             <Button
               render={<a href="#contact" onClick={() => setOpen(false)} />}
               nativeButton={false}
-              className="mt-2 w-full rounded-full"
+              className="mt-1 w-full rounded-full"
             >
               Book Appointment
             </Button>

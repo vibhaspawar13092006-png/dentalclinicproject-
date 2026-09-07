@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useUser, SignOutButton } from "@clerk/nextjs"
+import { useUser, SignOutButton, SignInButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
@@ -73,8 +73,14 @@ export default function AdminDashboard() {
         method: "POST",
       })
       if (res.ok) {
-        alert("Success! Your role has been updated to User. Redirecting to Patient Portal...")
-        window.location.href = "/dashboard"
+        const data = await res.json()
+        if (data.role === "admin") {
+          alert("Success! Administrator role granted. Welcome to Admin Portal!")
+          window.location.reload()
+        } else {
+          alert("Success! Your role has been updated to User. Redirecting to Patient Portal...")
+          window.location.href = "/dashboard"
+        }
       } else {
         alert("Failed to toggle role.")
       }
@@ -257,26 +263,32 @@ export default function AdminDashboard() {
   if (!isSignedIn) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md border-border/80 bg-card/60 shadow-2xl backdrop-blur-lg text-center">
-          <CardHeader>
-            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
-              <ShieldAlert className="size-6" />
+        <Card className="w-full max-w-md border-border/80 bg-card/70 shadow-2xl backdrop-blur-lg text-center">
+          <CardHeader className="space-y-3">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
+              <ShieldAlert className="size-7" />
             </div>
             <CardTitle className="font-heading text-2xl font-bold tracking-tight">
-              Sign In Required
+              Admin Portal Sign In
             </CardTitle>
-            <CardDescription>
-              Please log in to access the administrator panel.
+            <CardDescription className="text-sm">
+              Please sign in with your administrative account to manage appointments and schedules.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button
-              render={<a href="/" />}
-              nativeButton={false}
-              className="w-full rounded-xl py-2.5 font-semibold"
-            >
-              Go to Home to Sign In
-            </Button>
+            <SignInButton mode="modal">
+              <Button size="lg" className="w-full rounded-xl py-6 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md">
+                Sign In as Administrator
+              </Button>
+            </SignInButton>
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+              <a href="/" className="hover:text-foreground transition-colors">
+                ← Back to Clinic Website
+              </a>
+              <a href="/dashboard" className="hover:text-primary transition-colors flex items-center gap-1 font-semibold">
+                Patient Portal
+              </a>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -286,36 +298,34 @@ export default function AdminDashboard() {
   if (!isAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md border-border/80 bg-card/60 shadow-2xl backdrop-blur-lg text-center">
-          <CardHeader>
-            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-              <ShieldAlert className="size-6" />
+        <Card className="w-full max-w-md border-border/80 bg-card/70 shadow-2xl backdrop-blur-lg text-center">
+          <CardHeader className="space-y-3">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+              <Shield className="size-7" />
             </div>
             <CardTitle className="font-heading text-2xl font-bold tracking-tight">
-              Access Denied
+              Administrator Permission
             </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              You do not have permission to view this page. Admin role is required.
+            <CardDescription className="text-sm">
+              You are currently signed in as <span className="font-semibold text-foreground">{user?.fullName || "User"}</span> (role: {role}). Click below to unlock administrator access.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <p className="text-xs text-muted-foreground">
-              Tip: You can visit your Patient Dashboard and click the "Developer Role Switcher" button to promote your account to Admin for testing.
-            </p>
-            <div className="flex flex-col gap-2">
-              <Button
-                render={<a href="/dashboard" />}
-                nativeButton={false}
-                className="w-full rounded-xl py-2.5 font-semibold flex items-center justify-center gap-2"
-              >
-                <ArrowLeft className="size-4" />
-                Go to Dashboard
-              </Button>
-              <SignOutButton>
-                <Button variant="outline" className="w-full rounded-xl py-2.5 font-semibold text-destructive">
-                  Sign Out
-                </Button>
-              </SignOutButton>
+          <CardContent className="space-y-4">
+            <Button
+              onClick={handleToggleRole}
+              disabled={togglingRole}
+              size="lg"
+              className="w-full rounded-xl py-6 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md flex items-center justify-center gap-2"
+            >
+              {togglingRole ? "Granting Admin Access..." : "🚀 Unlock Admin Access (One-Click)"}
+            </Button>
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+              <a href="/" className="hover:text-foreground transition-colors">
+                ← Back to Clinic Website
+              </a>
+              <a href="/dashboard" className="hover:text-primary transition-colors font-semibold">
+                Go to Patient Portal →
+              </a>
             </div>
           </CardContent>
         </Card>
@@ -328,19 +338,35 @@ export default function AdminDashboard() {
       {/* Admin Navbar */}
       <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Plus className="size-5" strokeWidth={2.5} />
-            </span>
-            <span className="font-heading text-lg font-semibold tracking-tight">
-              Admin Portal
-            </span>
+          <div className="flex items-center gap-3">
+            <a href="/" className="flex items-center gap-2 group">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Plus className="size-5" strokeWidth={2.5} />
+              </span>
+              <span className="font-heading text-lg font-semibold tracking-tight group-hover:text-primary transition-colors">
+                Sheetal Dental
+              </span>
+            </a>
+            <span className="text-muted-foreground text-sm">/</span>
+            <span className="text-sm font-semibold text-foreground">Admin Portal</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <a
+              href="/"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-block px-2"
+            >
+              ← Clinic Home
+            </a>
+            <a
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors"
+            >
+              Patient Portal
+            </a>
             <div className="hidden sm:flex flex-col text-right">
               <span className="text-sm font-semibold">{user?.fullName}</span>
-              <span className="text-xs text-emerald-600 dark:text-emerald-400 capitalize">Administrator</span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider">Administrator</span>
             </div>
             <SignOutButton>
               <Button

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
-import { useUser, SignOutButton } from "@clerk/nextjs"
+import { useUser, SignOutButton, SignInButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -148,17 +148,16 @@ export default function UserDashboard() {
   }
 
   useEffect(() => {
-    if (isLoaded && user) {
-      const userRole = (user.publicMetadata?.role as string) || "user"
-      if (userRole === "admin") {
-        window.location.href = "/admin"
-      } else {
-        setName(user.fullName || "")
-        setEmail(user.emailAddresses[0]?.emailAddress || "")
-        setRole(userRole)
-        fetchAppointments()
-      }
+    if (!isLoaded) return
+    if (!user) {
+      setLoading(false)
+      return
     }
+    const userRole = (user.publicMetadata?.role as string) || "user"
+    setName(user.fullName || "")
+    setEmail(user.emailAddresses[0]?.emailAddress || "")
+    setRole(userRole)
+    fetchAppointments()
   }, [isLoaded, user])
 
   const fetchAppointments = async () => {
@@ -251,21 +250,74 @@ export default function UserDashboard() {
     )
   }
 
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md border-border/80 bg-card/70 shadow-2xl backdrop-blur-lg text-center">
+          <CardHeader className="space-y-3">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <User className="size-7" />
+            </div>
+            <CardTitle className="font-heading text-2xl font-bold tracking-tight">
+              Patient Portal Sign In
+            </CardTitle>
+            <CardDescription className="text-sm">
+              Please sign in to view your scheduled visits, request new dental appointments, and manage your treatments.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <SignInButton mode="modal">
+              <Button size="lg" className="w-full rounded-xl py-6 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md">
+                Sign In / Register
+              </Button>
+            </SignInButton>
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+              <a href="/" className="hover:text-foreground transition-colors">
+                ← Back to Clinic Website
+              </a>
+              <a href="/admin" className="hover:text-primary transition-colors flex items-center gap-1 font-semibold">
+                <Shield className="size-3" />
+                Admin Portal
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground pb-12">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Plus className="size-5" strokeWidth={2.5} />
-            </span>
-            <span className="font-heading text-lg font-semibold tracking-tight">
-              Patient Portal
-            </span>
+          <div className="flex items-center gap-3">
+            <a href="/" className="flex items-center gap-2 group">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                <Plus className="size-5" strokeWidth={2.5} />
+              </span>
+              <span className="font-heading text-lg font-semibold tracking-tight group-hover:text-primary transition-colors">
+                Sheetal Dental
+              </span>
+            </a>
+            <span className="text-muted-foreground text-sm">/</span>
+            <span className="text-sm font-semibold text-foreground">Patient Portal</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <a
+              href="/"
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-block px-2"
+            >
+              ← Clinic Home
+            </a>
+            <a
+              href="/admin"
+              className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors"
+            >
+              <Shield className="size-3 text-accent" />
+              Admin Portal
+            </a>
             <div className="hidden sm:flex flex-col text-right">
               <span className="text-sm font-semibold">{user?.fullName}</span>
               <span className="text-xs text-muted-foreground capitalize">Role: {role}</span>

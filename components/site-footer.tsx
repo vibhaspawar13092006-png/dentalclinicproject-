@@ -31,8 +31,35 @@ export function SiteFooter() {
           />
           <FooterCol
             title="Clinic"
-            links={["About Us", "Our Team", "Reviews", "Contact"]}
+            links={[
+              { label: "About Us", href: "/#about" },
+              { label: "Our Team", href: "/#team" },
+              { label: "Reviews", href: "/#reviews" },
+              { label: "Contact & Location", href: "/#contact" },
+            ]}
           />
+
+          <div className="flex flex-col gap-3">
+            <h4 className="font-semibold text-foreground">Portals</h4>
+            <ul className="flex flex-col gap-2">
+              <li>
+                <a
+                  href="/dashboard"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground inline-flex items-center gap-1.5"
+                >
+                  Patient Portal
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/admin"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground inline-flex items-center gap-1.5"
+                >
+                  Admin Portal
+                </a>
+              </li>
+            </ul>
+          </div>
 
           <div className="flex flex-col gap-3">
             <h4 className="font-semibold text-foreground">Visit Us</h4>
@@ -68,21 +95,31 @@ export function SiteFooter() {
   )
 }
 
-function FooterCol({ title, links }: { title: string; links: string[] }) {
+function FooterCol({
+  title,
+  links,
+}: {
+  title: string
+  links: (string | { label: string; href: string })[]
+}) {
   return (
     <div className="flex flex-col gap-3">
       <h4 className="font-semibold text-foreground">{title}</h4>
       <ul className="flex flex-col gap-2">
-        {links.map((link) => (
-          <li key={link}>
-            <a
-              href="#"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {link}
-            </a>
-          </li>
-        ))}
+        {links.map((link, idx) => {
+          const label = typeof link === "string" ? link : link.label
+          const href = typeof link === "string" ? "#" : link.href
+          return (
+            <li key={idx}>
+              <a
+                href={href}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {label}
+              </a>
+            </li>
+          )
+        })}
       </ul>
     </div>
   )

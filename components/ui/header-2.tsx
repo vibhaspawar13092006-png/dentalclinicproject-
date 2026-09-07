@@ -6,7 +6,7 @@ import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
 import { useScroll } from '@/components/ui/use-scroll';
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
-import { Phone, Plus } from "lucide-react";
+import { Phone, Plus, User, Shield } from "lucide-react";
 
 export function Header() {
 	const [open, setOpen] = React.useState(false);
@@ -93,6 +93,12 @@ export function Header() {
 					</Button>
 
 					<Show when="signed-out">
+						<a
+							href="/dashboard"
+							className="text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors px-1"
+						>
+							Portal
+						</a>
 						<SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
 							<Button variant="ghost" size="sm" className="rounded-full text-xs font-medium">
 								Sign In
@@ -100,6 +106,20 @@ export function Header() {
 						</SignInButton>
 					</Show>
 					<Show when="signed-in">
+						<a
+							href="/dashboard"
+							className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors"
+						>
+							<User className="size-3 text-primary" />
+							Patient Portal
+						</a>
+						<a
+							href="/admin"
+							className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors"
+						>
+							<Shield className="size-3 text-accent" />
+							Admin
+						</a>
 						<UserButton />
 					</Show>
 				</div>
@@ -143,6 +163,24 @@ export function Header() {
 								{link.label}
 							</a>
 						))}
+						<div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/40">
+							<a
+								href="/dashboard"
+								onClick={() => setOpen(false)}
+								className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary p-3 text-xs font-semibold text-foreground hover:bg-primary/10 transition-colors"
+							>
+								<User className="size-3.5 text-primary" />
+								Patient Portal
+							</a>
+							<a
+								href="/admin"
+								onClick={() => setOpen(false)}
+								className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary p-3 text-xs font-semibold text-foreground hover:bg-primary/10 transition-colors"
+							>
+								<Shield className="size-3.5 text-accent" />
+								Admin Portal
+							</a>
+						</div>
 					</div>
 					<div className="flex flex-col gap-3">
 						<a
