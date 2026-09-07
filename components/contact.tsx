@@ -29,19 +29,9 @@ import {
 } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { ScrollReveal } from "@/components/scroll-reveal"
+import { TREATMENT_PRICING, CLINIC_SERVICES_LIST } from "@/lib/pricing"
 
-const services = [
-  "General Dentistry",
-  "Cosmetic Dentistry",
-  "Teeth Whitening",
-  "Dental Implants",
-  "Single Visit Root Canal Treatment",
-  "Painless Dental Extractions",
-  "Teeth Straightening",
-  "Pediatric Dentistry",
-  "Emergency Visit",
-  "Other",
-]
+const services = CLINIC_SERVICES_LIST
 
 const info = [
   {
@@ -74,7 +64,7 @@ export function Contact() {
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [email, setEmail] = useState("")
-  const [service, setService] = useState(services[0])
+  const [service, setService] = useState("")
   const [preferredDate, setPreferredDate] = useState("")
   const [preferredTime, setPreferredTime] = useState("")
   const [message, setMessage] = useState("")
@@ -91,6 +81,10 @@ export function Contact() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (!service) {
+      setError("Please select the required dental treatment from the list.")
+      return
+    }
     setLoading(true)
     setError(null)
 
@@ -334,7 +328,7 @@ export function Contact() {
                           </Label>
                           <Select value={service} onValueChange={(val) => val && setService(val)} disabled={loading}>
                             <SelectTrigger id="app-service" className="rounded-xl w-full">
-                              <SelectValue placeholder="Select a service" />
+                              <SelectValue placeholder="Choose treatment to view estimate..." />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
@@ -346,6 +340,42 @@ export function Contact() {
                               </SelectGroup>
                             </SelectContent>
                           </Select>
+
+                          {/* Treatment price revealed AFTER patient selects the treatment */}
+                          {service && TREATMENT_PRICING[service] && (
+                            <div className="mt-2.5 rounded-2xl border border-primary/25 bg-primary/5 p-3.5 animate-fade-in-up transition-all shadow-sm">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-sm shadow-sm">
+                                    ₹
+                                  </div>
+                                  <div>
+                                    <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground font-semibold block">
+                                      Estimated Fee
+                                    </span>
+                                    <span className="text-base font-bold text-foreground font-heading">
+                                      {TREATMENT_PRICING[service].price}
+                                    </span>
+                                  </div>
+                                </div>
+                                {TREATMENT_PRICING[service].duration && (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-background/80 border border-border/60 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                                    <Clock className="size-3 text-primary" />
+                                    {TREATMENT_PRICING[service].duration}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                                {TREATMENT_PRICING[service].note}
+                              </p>
+                              <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
+                                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium text-[11px]">
+                                  <CheckCircle2 className="size-3" /> Transparent Clinic Pricing
+                                </span>
+                                <span className="text-[10px] italic">No surprise fees</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 
