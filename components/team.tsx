@@ -2,19 +2,24 @@ import { ScrollReveal } from "@/components/scroll-reveal"
 
 const team = [
   {
-    name: "Dr. Marcus Reed",
-    role: "Lead Dentist, DDS",
+    name: "Dr. Swapnil Jadhav",
+    role: "Lead Dentist & Surgeon",
     image: "/dentist-1.png",
   },
   {
-    name: "Dr. Elena Park",
-    role: "Cosmetic Dentist",
+    name: "Dr. Chaudhry",
+    role: "Cosmetic Dentist & Orthodontist",
     image: "/dentist-2.png",
   },
   {
-    name: "Sophie Tran",
-    role: "Dental Hygienist",
+    name: "Dr. Manju Singh",
+    role: "Restorative & Pediatric Care",
     image: "/dentist-3.png",
+  },
+  {
+    name: "Sonu Tejpal",
+    role: "Compounder & Clinical Assistant",
+    image: "/sonu-tejpal.jpg",
   },
 ]
 
@@ -32,13 +37,12 @@ export function Team() {
               Friendly faces <em className="italic text-primary font-normal">you can trust</em>
             </h2>
             <p className="mt-4 text-pretty text-lg text-muted-foreground font-light leading-relaxed">
-              Our skilled, compassionate professionals are dedicated to your
-              smile and your ultimate comfort.
+              Our skilled, compassionate clinical team is dedicated to your oral health and comfortable experience.
             </p>
           </div>
         </ScrollReveal>
 
-        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {team.map((member, index) => (
             <ScrollReveal
               key={member.name}
