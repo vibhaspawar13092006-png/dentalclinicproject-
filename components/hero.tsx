@@ -15,13 +15,13 @@ export function Hero() {
           <ScrollReveal variant="fade-up" delay={100} duration={800}>
             <span className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-secondary px-4 py-1.5 text-xs font-mono uppercase tracking-widest font-semibold text-secondary-foreground shadow-sm">
               <ShieldCheck className="size-4 text-accent" />
-              Accepting new patients
+              Sheetal Dental Clinic • Accepting New Patients
             </span>
           </ScrollReveal>
 
           <ScrollReveal variant="fade-up" delay={200} duration={900}>
             <h1 className="text-balance font-heading text-5xl sm:text-6xl lg:text-7xl font-normal leading-[1.05] tracking-tight text-foreground">
-              Gentle, modern dentistry for a <em className="italic font-normal text-primary">healthier smile</em>
+              Gentle, modern dentistry at <em className="italic font-normal text-primary">Sheetal Dental</em>
             </h1>
           </ScrollReveal>
 

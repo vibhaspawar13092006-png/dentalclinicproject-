@@ -6,7 +6,7 @@ import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
 import { useScroll } from '@/components/ui/use-scroll';
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
-import { Phone } from "lucide-react";
+import { Phone, Plus } from "lucide-react";
 
 export function Header() {
 	const [open, setOpen] = React.useState(false);
@@ -54,8 +54,13 @@ export function Header() {
 					},
 				)}
 			>
-				<a href="/" className="flex items-center gap-2 group">
-					<WordmarkIcon className="h-4 text-foreground group-hover:text-primary transition-colors duration-300" />
+				<a href="/" className="flex items-center gap-2.5 group">
+					<span className="flex size-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm group-hover:scale-105 transition-transform">
+						<Plus className="size-4" strokeWidth={2.5} />
+					</span>
+					<span className="font-heading text-lg font-bold tracking-tight text-foreground group-hover:text-primary transition-colors whitespace-nowrap">
+						Sheetal Dental Clinic
+					</span>
 				</a>
 
 				<div className="hidden items-center gap-6 md:flex">
