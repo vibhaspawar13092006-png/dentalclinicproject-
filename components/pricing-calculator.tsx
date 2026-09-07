@@ -6,19 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Calculator, Shield, HelpCircle, ArrowRight } from "lucide-react"
 
 const treatments = [
-  { key: "general", label: "General Dentistry & Cleaning", baseCost: 150, category: "basic" },
-  { key: "extraction", label: "Painless Dental Extraction", baseCost: 250, category: "basic" },
-  { key: "whitening", label: "Professional Teeth Whitening", baseCost: 350, category: "cosmetic" },
-  { key: "rootcanal", label: "Single Visit Root Canal Treatment", baseCost: 950, category: "major" },
-  { key: "implants", label: "Premium Dental Implants", baseCost: 2500, category: "major" },
-  { key: "straightening", label: "Orthodontic Teeth Straightening", baseCost: 3800, category: "major" },
+  { key: "general", label: "General Dentistry & Cleaning", baseCost: 1000, category: "basic" },
+  { key: "extraction", label: "Painless Dental Extraction", baseCost: 1500, category: "basic" },
+  { key: "whitening", label: "Professional Teeth Whitening", baseCost: 5000, category: "cosmetic" },
+  { key: "rootcanal", label: "Single Visit Root Canal Treatment", baseCost: 4500, category: "major" },
+  { key: "implants", label: "Premium Dental Implants", baseCost: 25000, category: "major" },
+  { key: "straightening", label: "Orthodontic Teeth Straightening", baseCost: 35000, category: "major" },
 ]
 
 const insurancePlans = [
   { key: "none", label: "No Insurance (Self-Pay)", basicCoverage: 0, majorCoverage: 0, cosmeticCoverage: 0 },
-  { key: "basic", label: "Basic Care Dental (e.g. Delta/Cigna basic)", basicCoverage: 0.70, majorCoverage: 0.20, cosmeticCoverage: 0 },
-  { key: "premium", label: "Premium Choice Dental (e.g. MetLife/Aetna prem)", basicCoverage: 0.90, majorCoverage: 0.50, cosmeticCoverage: 0.10 },
+  { key: "basic", label: "Standard Health / Dental Cover (e.g. Star / Care / HDFC)", basicCoverage: 0.50, majorCoverage: 0.20, cosmeticCoverage: 0 },
+  { key: "premium", label: "Comprehensive Corporate Dental Policy", basicCoverage: 0.80, majorCoverage: 0.50, cosmeticCoverage: 0.15 },
 ]
+
+const formatINR = (amount: number) => `₹${amount.toLocaleString("en-IN")}`
 
 export function PricingCalculator() {
   const [selectedTreatmentKey, setSelectedTreatmentKey] = useState("general")
@@ -77,7 +79,7 @@ export function PricingCalculator() {
                   >
                     {treatments.map((t) => (
                       <option key={t.key} value={t.key}>
-                        {t.label} (Base: ${t.baseCost})
+                        {t.label} (Base: {formatINR(t.baseCost)})
                       </option>
                     ))}
                   </select>
@@ -133,29 +135,29 @@ export function PricingCalculator() {
                 <div className="space-y-3.5 text-sm">
                   <div className="flex justify-between text-muted-foreground">
                     <span>Base Treatment Cost</span>
-                    <span className="font-semibold text-foreground">${treatment.baseCost}</span>
+                    <span className="font-semibold text-foreground">{formatINR(treatment.baseCost)}</span>
                   </div>
 
                   {isComplex && (
                     <div className="flex justify-between text-muted-foreground">
                       <span>Complexity Markup (+25%)</span>
-                      <span className="font-semibold text-foreground">+${Math.round(treatment.baseCost * 0.25)}</span>
+                      <span className="font-semibold text-foreground">+{formatINR(Math.round(treatment.baseCost * 0.25))}</span>
                     </div>
                   )}
 
                   <div className="flex justify-between text-muted-foreground">
                     <span>Subtotal</span>
-                    <span className="font-semibold text-foreground">${baseCost}</span>
+                    <span className="font-semibold text-foreground">{formatINR(baseCost)}</span>
                   </div>
 
                   <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
                     <span>Insurance Coverage ({Math.round(coveragePercent * 100)}%)</span>
-                    <span className="font-semibold">-${insuranceCoverage}</span>
+                    <span className="font-semibold">-{formatINR(insuranceCoverage)}</span>
                   </div>
 
                   <div className="pt-4 border-t border-primary/20 flex justify-between items-baseline">
                     <span className="text-base font-bold text-foreground">Patient Out-of-Pocket</span>
-                    <span className="text-3xl font-extrabold text-primary">${patientOutofPocket}</span>
+                    <span className="text-3xl font-extrabold text-primary">{formatINR(patientOutofPocket)}</span>
                   </div>
                 </div>
 
