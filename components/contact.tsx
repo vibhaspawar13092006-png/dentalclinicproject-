@@ -65,6 +65,7 @@ const info = [
 
 export function Contact() {
   const { user, isLoaded } = useUser()
+  const isAdmin = (user?.publicMetadata as { role?: string } | undefined)?.role === "admin"
 
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -205,13 +206,15 @@ export function Contact() {
                     <User className="size-3.5 text-primary" />
                     Patient Portal
                   </a>
-                  <a
-                    href="/admin"
-                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-secondary hover:bg-secondary/80 border border-border px-3.5 py-2.5 text-xs font-semibold text-foreground transition-colors"
-                  >
-                    <Shield className="size-3.5 text-accent" />
-                    Admin Portal
-                  </a>
+                  {isAdmin && (
+                    <a
+                      href="/admin"
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-secondary hover:bg-secondary/80 border border-border px-3.5 py-2.5 text-xs font-semibold text-foreground transition-colors"
+                    >
+                      <Shield className="size-3.5 text-accent" />
+                      Admin Portal
+                    </a>
+                  )}
                 </div>
               </div>
             </ScrollReveal>
@@ -329,7 +332,7 @@ export function Contact() {
                           <Label htmlFor="app-service" className="text-xs font-semibold">
                             Treatment Required <span className="text-destructive">*</span>
                           </Label>
-                          <Select value={service} onValueChange={setService} disabled={loading}>
+                          <Select value={service} onValueChange={(val) => val && setService(val)} disabled={loading}>
                             <SelectTrigger id="app-service" className="rounded-xl w-full">
                               <SelectValue placeholder="Select a service" />
                             </SelectTrigger>

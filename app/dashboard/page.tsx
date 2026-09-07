@@ -30,10 +30,13 @@ interface Appointment {
   phone: string
   service: string
   message: string
-  status?: "pending" | "confirmed" | "cancelled"
+  status?: "pending" | "confirmed" | "cancelled" | "cancel_requested" | "reschedule_requested"
   scheduledDate?: string
   scheduledTime?: string
   doctorNotes?: string
+  rescheduleDate?: string
+  rescheduleTime?: string
+  rescheduleMessage?: string
   createdAt: string
 }
 
@@ -271,13 +274,9 @@ export default function UserDashboard() {
                 Sign In / Register
               </Button>
             </SignInButton>
-            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+            <div className="flex items-center justify-center text-xs text-muted-foreground pt-2">
               <a href="/" className="hover:text-foreground transition-colors">
                 ← Back to Clinic Website
-              </a>
-              <a href="/admin" className="hover:text-primary transition-colors flex items-center gap-1 font-semibold">
-                <Shield className="size-3" />
-                Admin Portal
               </a>
             </div>
           </CardContent>
@@ -311,13 +310,15 @@ export default function UserDashboard() {
             >
               ← Clinic Home
             </a>
-            <a
-              href="/admin"
-              className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors"
-            >
-              <Shield className="size-3 text-accent" />
-              Admin Portal
-            </a>
+            {role === "admin" && (
+              <a
+                href="/admin"
+                className="inline-flex items-center gap-1.5 rounded-full bg-secondary hover:bg-secondary/80 border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors"
+              >
+                <Shield className="size-3 text-accent" />
+                Admin Portal
+              </a>
+            )}
             <div className="hidden sm:flex flex-col text-right">
               <span className="text-sm font-semibold">{user?.fullName}</span>
               <span className="text-xs text-muted-foreground capitalize">Role: {role}</span>
@@ -821,24 +822,24 @@ export default function UserDashboard() {
           </div>
         </div>
 
-        {/* Role Toggle Developer section */}
-        <Card className="border-dashed border border-amber-500/30 bg-amber-500/5 mt-12">
-          <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                <Shield className="size-5" />
+        {/* Role Toggle Developer section (Only visible if already an admin) */}
+        {role === "admin" && (
+          <Card className="border-dashed border border-amber-500/30 bg-amber-500/5 mt-12">
+            <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                  <Shield className="size-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    Administrator Controls
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Your current account role is <span className="font-semibold capitalize text-foreground">{role}</span>.
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  Developer Role Switcher
-                </h4>
-                <p className="text-xs text-muted-foreground">
-                  Your current account role is <span className="font-semibold capitalize text-foreground">{role}</span>. Toggle this to test Role-Based Access Controls on /admin.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              {role === "admin" && (
+              <div className="flex gap-2">
                 <Button
                   variant="outline"
                   render={<a href="/admin" />}
@@ -847,18 +848,18 @@ export default function UserDashboard() {
                 >
                   Visit Admin Panel
                 </Button>
-              )}
-              <Button
-                variant="secondary"
-                disabled={togglingRole}
-                onClick={handleToggleRole}
-                className="rounded-xl border border-amber-500/20 hover:bg-amber-500/10"
-              >
-                {togglingRole ? "Updating..." : `Switch to ${role === "admin" ? "User" : "Admin"}`}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                <Button
+                  variant="secondary"
+                  disabled={togglingRole}
+                  onClick={handleToggleRole}
+                  className="rounded-xl border border-amber-500/20 hover:bg-amber-500/10"
+                >
+                  {togglingRole ? "Updating..." : "Switch to Patient View"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </main>
     </div>
   )

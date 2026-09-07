@@ -10,6 +10,23 @@ export async function POST(request: Request) {
 
     const user = await currentUser()
     const currentRole = user?.publicMetadata?.role || "user"
+
+    // Parse body for passcode
+    const body = await request.json().catch(() => ({}))
+    const { passcode } = body
+
+    const expectedPasscode = process.env.ADMIN_PASSCODE || "Sheetal@Admin2026"
+
+    // If currently not admin and attempting to unlock admin role, verify passcode
+    if (currentRole !== "admin") {
+      if (!passcode || passcode.trim() !== expectedPasscode.trim()) {
+        return NextResponse.json(
+          { error: "Incorrect Admin Security Passcode! Access Denied." },
+          { status: 403 }
+        )
+      }
+    }
+
     const newRole = currentRole === "admin" ? "user" : "admin"
 
     const client = await clerkClient()

@@ -19,7 +19,11 @@ import {
   FileText,
   ShieldAlert,
   ArrowLeft,
-  Shield
+  Shield,
+  Lock,
+  Eye,
+  EyeOff,
+  KeyRound
 } from "lucide-react"
 
 interface Appointment {
@@ -29,10 +33,13 @@ interface Appointment {
   phone: string
   service: string
   message: string
-  status?: "pending" | "confirmed" | "cancelled"
+  status?: "pending" | "confirmed" | "cancelled" | "cancel_requested" | "reschedule_requested"
   scheduledDate?: string
   scheduledTime?: string
   doctorNotes?: string
+  rescheduleDate?: string
+  rescheduleTime?: string
+  rescheduleMessage?: string
   createdAt: string
 }
 
@@ -44,6 +51,9 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedService, setSelectedService] = useState("All")
   const [togglingRole, setTogglingRole] = useState(false)
+  const [passcode, setPasscode] = useState("")
+  const [passcodeError, setPasscodeError] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
 
   // Scheduling edit states
   const [editingAppId, setEditingAppId] = useState<string | null>(null)
@@ -66,26 +76,48 @@ export default function AdminDashboard() {
   const role = user?.publicMetadata?.role as string || "user"
   const isAdmin = role === "admin"
 
-  const handleToggleRole = async () => {
+  const handleVerifyAndUnlock = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!passcode.trim()) {
+      setPasscodeError("Please enter the administrator passcode.")
+      return
+    }
+    setTogglingRole(true)
+    setPasscodeError("")
+    try {
+      const res = await fetch("/api/user/toggle-role", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passcode: passcode.trim() }),
+      })
+      const data = await res.json()
+      if (res.ok && data.role === "admin") {
+        alert("Success! Administrator identity verified. Welcome to Sheetal Dental Admin Portal!")
+        window.location.reload()
+      } else {
+        setPasscodeError(data.error || "Incorrect admin passcode. Access denied.")
+      }
+    } catch (err) {
+      setPasscodeError("An error occurred during verification. Please try again.")
+    } finally {
+      setTogglingRole(false)
+    }
+  }
+
+  const handleSwitchToPatient = async () => {
     setTogglingRole(true)
     try {
       const res = await fetch("/api/user/toggle-role", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
       })
       if (res.ok) {
-        const data = await res.json()
-        if (data.role === "admin") {
-          alert("Success! Administrator role granted. Welcome to Admin Portal!")
-          window.location.reload()
-        } else {
-          alert("Success! Your role has been updated to User. Redirecting to Patient Portal...")
-          window.location.href = "/dashboard"
-        }
-      } else {
-        alert("Failed to toggle role.")
+        alert("Switched to Patient view. Redirecting...")
+        window.location.href = "/dashboard"
       }
     } catch (err) {
-      alert("Error toggling role.")
+      alert("Failed to switch role.")
     } finally {
       setTogglingRole(false)
     }
@@ -298,28 +330,67 @@ export default function AdminDashboard() {
   if (!isAdmin) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md border-border/80 bg-card/70 shadow-2xl backdrop-blur-lg text-center">
-          <CardHeader className="space-y-3">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-              <Shield className="size-7" />
+        <Card className="w-full max-w-md border-border/80 bg-card/80 shadow-2xl backdrop-blur-lg">
+          <CardHeader className="space-y-3 text-center">
+            <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20">
+              <Lock className="size-7" />
             </div>
             <CardTitle className="font-heading text-2xl font-bold tracking-tight">
-              Administrator Permission
+              Clinic Administrator Verification
             </CardTitle>
             <CardDescription className="text-sm">
-              You are currently signed in as <span className="font-semibold text-foreground">{user?.fullName || "User"}</span> (role: {role}). Click below to unlock administrator access.
+              Signed in as <span className="font-semibold text-foreground">{user?.fullName || user?.emailAddresses[0]?.emailAddress}</span>. Enter the clinic security passcode to unlock doctor controls.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button
-              onClick={handleToggleRole}
-              disabled={togglingRole}
-              size="lg"
-              className="w-full rounded-xl py-6 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md flex items-center justify-center gap-2"
-            >
-              {togglingRole ? "Granting Admin Access..." : "🚀 Unlock Admin Access (One-Click)"}
-            </Button>
-            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+            {passcodeError && (
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-xs font-semibold text-destructive text-center flex items-center justify-center gap-2">
+                <ShieldAlert className="size-4 shrink-0" />
+                <span>{passcodeError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyAndUnlock} className="space-y-4">
+              <div className="space-y-1.5 text-left">
+                <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                  <KeyRound className="size-3.5 text-primary" />
+                  Administrator Security Passcode
+                </label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter admin passcode..."
+                    value={passcode}
+                    onChange={(e) => setPasscode(e.target.value)}
+                    disabled={togglingRole}
+                    className="rounded-xl pr-10"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <Shield className="size-3 text-muted-foreground" />
+                  Restricted access. Authorized clinic staff only.
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={togglingRole}
+                size="lg"
+                className="w-full rounded-xl py-6 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {togglingRole ? "Verifying Passcode..." : "Verify & Unlock Admin Portal"}
+              </Button>
+            </form>
+
+            <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/40">
               <a href="/" className="hover:text-foreground transition-colors">
                 ← Back to Clinic Website
               </a>
@@ -828,10 +899,10 @@ export default function AdminDashboard() {
               <Button
                 variant="secondary"
                 disabled={togglingRole}
-                onClick={handleToggleRole}
+                onClick={handleSwitchToPatient}
                 className="rounded-xl border border-amber-500/20 hover:bg-amber-500/10"
               >
-                {togglingRole ? "Updating..." : `Switch to User`}
+                {togglingRole ? "Updating..." : `Switch to Patient View`}
               </Button>
             </div>
           </CardContent>
