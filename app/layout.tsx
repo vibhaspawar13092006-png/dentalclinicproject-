@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   description:
     'Sheetal Dental Clinic is a modern dental clinic offering gentle, comprehensive care — from routine cleanings to cosmetic and restorative dentistry. Book your appointment today.',
   generator: 'v0.app',
+  verification: {
+    google: 'wJ3wD44cqVVuoEuGw1Fu96lXFoPwr6931f76rLxsQxY',
+  },
   icons: {
     icon: [
       {
