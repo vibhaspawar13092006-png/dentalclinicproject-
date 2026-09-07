@@ -1,4 +1,4 @@
-import { SiteHeader } from "@/components/site-header"
+import { Header } from "@/components/ui/header-2"
 import { SiteFooter } from "@/components/site-footer"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -97,7 +97,7 @@ const generalServices = [
 export default function ServicesPage() {
   return (
     <>
-      <SiteHeader />
+      <Header />
       <main className="min-h-screen bg-background text-foreground">
         {/* Banner Section */}
         <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-primary/5 to-transparent py-20 lg:py-28">
@@ -157,9 +157,16 @@ export default function ServicesPage() {
                         {service.description}
                       </p>
                     </div>
-                    <div className="mt-6 pt-4 border-t border-border/40 flex items-center text-xs font-semibold text-primary hover:text-primary/80 transition-colors cursor-pointer">
-                      Learn more and book <ChevronRight className="size-3.5 ml-1 transition-transform group-hover:translate-x-1" />
-                    </div>
+                    <a
+                      href="/#contact"
+                      className="mt-6 pt-4 border-t border-border/40 flex items-center justify-between text-xs font-semibold text-primary hover:text-primary/80 transition-colors group/btn cursor-pointer"
+                    >
+                      <span>Book this treatment</span>
+                      <span className="inline-flex items-center gap-1 font-mono uppercase tracking-wider text-[11px] bg-primary/10 text-primary px-3 py-1.5 rounded-full group-hover/btn:bg-primary group-hover/btn:text-primary-foreground transition-all shadow-sm">
+                        Book Now
+                        <ChevronRight className="size-3 transition-transform group-hover/btn:translate-x-0.5" />
+                      </span>
+                    </a>
                   </CardContent>
                 </Card>
               ))}
@@ -198,6 +205,16 @@ export default function ServicesPage() {
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                       {service.description}
                     </p>
+                    <a
+                      href="/#contact"
+                      className="mt-5 pt-4 border-t border-border/40 flex items-center justify-between text-xs font-semibold text-primary hover:text-primary/80 transition-colors group/btn cursor-pointer"
+                    >
+                      <span>Book this care</span>
+                      <span className="inline-flex items-center gap-1 font-mono uppercase tracking-wider text-[11px] bg-primary/10 text-primary px-3 py-1.5 rounded-full group-hover/btn:bg-primary group-hover/btn:text-primary-foreground transition-all shadow-sm">
+                        Book Now
+                        <ChevronRight className="size-3 transition-transform group-hover/btn:translate-x-0.5" />
+                      </span>
+                    </a>
                   </CardContent>
                 </Card>
               ))}
@@ -227,13 +244,13 @@ export default function ServicesPage() {
                   Book Appointment
                 </Button>
                 <Button
-                  render={<a href="tel:+15551234567" />}
+                  render={<a href="tel:+917304252372" />}
                   nativeButton={false}
                   size="lg"
                   variant="outline"
                   className="rounded-full px-8 py-3 text-base font-semibold border-border hover:bg-muted transition-all"
                 >
-                  Call Sheetal Clinic
+                  Call: +91 7304252372
                 </Button>
               </div>
             </div>
