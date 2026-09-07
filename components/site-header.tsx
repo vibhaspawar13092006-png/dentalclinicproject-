@@ -8,24 +8,24 @@ import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs"
 
 
 const navLinks = [
-  { label: "Services", href: "#services" },
-  { label: "About", href: "#about" },
-  { label: "Team", href: "#team" },
-  { label: "Reviews", href: "#reviews" },
-  { label: "Contact", href: "#contact" },
+  { label: "Services", href: "/#services" },
+  { label: "About", href: "/#about" },
+  { label: "Team", href: "/#team" },
+  { label: "Reviews", href: "/#reviews" },
+  { label: "Contact", href: "/#contact" },
 ]
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-md transition-all duration-300 animate-slide-down">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <a href="#home" className="flex items-center gap-2">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <a href="/" className="flex items-center gap-2.5 group">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm transition-transform duration-500 group-hover:rotate-180">
             <Plus className="size-5" strokeWidth={2.5} />
           </span>
-          <span className="font-heading text-lg font-semibold tracking-tight text-foreground">
+          <span className="font-heading text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
             Sheetal Dental Clinic
           </span>
         </a>
@@ -35,17 +35,17 @@ export function SiteHeader() {
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs uppercase font-mono tracking-widest font-semibold text-muted-foreground transition-colors hover:text-foreground nav-link-underline py-1"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
           <a
             href="tel:+15551234567"
-            className="text-sm font-medium text-foreground"
+            className="text-xs font-mono tracking-wider font-semibold text-foreground hover:text-primary transition-colors"
           >
             (555) 123-4567
           </a>
@@ -53,19 +53,19 @@ export function SiteHeader() {
           <Button
             render={<a href="#contact" />}
             nativeButton={false}
-            className="rounded-full"
+            className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground hover:scale-[1.02] active:scale-[0.98] transition-all font-medium border border-accent/20 px-5"
           >
             Book Appointment
           </Button>
 
           <Show when="signed-out">
             <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
-              <Button variant="ghost" size="sm" className="rounded-full">
+              <Button variant="ghost" size="sm" className="rounded-full text-xs font-medium">
                 Sign In
               </Button>
             </SignInButton>
             <SignUpButton mode="modal" fallbackRedirectUrl="/dashboard">
-              <Button size="sm" className="rounded-full">
+              <Button size="sm" className="rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 text-xs font-medium border border-border">
                 Sign Up
               </Button>
             </SignUpButton>
@@ -90,14 +90,14 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <div className="border-t border-border/60 bg-background md:hidden">
+        <div className="border-t border-border/40 bg-background md:hidden animate-fade-in-up">
           <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                className="rounded-md px-3 py-2 text-base font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
               >
                 {link.label}
               </a>
@@ -110,7 +110,7 @@ export function SiteHeader() {
               Book Appointment
             </Button>
 
-            <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4">
+            <div className="mt-4 flex flex-col gap-2 border-t border-border/40 pt-4">
               <Show when="signed-out">
                 <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
                   <Button variant="outline" className="w-full rounded-full">

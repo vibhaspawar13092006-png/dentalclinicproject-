@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth, currentUser } from "@clerk/nextjs/server"
 import clientPromise from "@/lib/mongodb"
+import { sendSMS } from "@/lib/sms"
 
 export async function POST(request: Request) {
   try {
@@ -26,12 +27,24 @@ export async function POST(request: Request) {
       email,
       phone,
       service,
+      status: "pending",
+      scheduledDate: null,
+      scheduledTime: null,
+      doctorNotes: "",
       message: message || "",
       userId: userId || null,
       createdAt: new Date(),
     }
 
     const result = await appointmentsCollection.insertOne(newAppointment)
+
+    // Send SMS notification
+    try {
+      const smsMessage = `Hello ${name}, your Sheetal Dental Clinic appointment request for "${service}" has been received! We will notify you once confirmed by the doctor.`
+      await sendSMS(phone, smsMessage)
+    } catch (smsErr) {
+      console.error("SMS notification trigger failed during POST:", smsErr)
+    }
 
     return NextResponse.json(
       {

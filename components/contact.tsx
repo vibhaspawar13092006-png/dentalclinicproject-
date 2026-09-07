@@ -1,9 +1,8 @@
-"use client"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { MapPin, Phone, Mail, Clock, CheckCircle2 } from "lucide-react"
 import { SignInButton, Show } from "@clerk/nextjs"
+import { ScrollReveal } from "@/components/scroll-reveal"
 
 const info = [
   { icon: MapPin, label: "Address", value: "124 Maple Avenue, Brookline" },
@@ -14,79 +13,101 @@ const info = [
 
 export function Contact() {
   return (
-    <section id="contact" className="bg-secondary/40 py-16 lg:py-24">
+    <section id="contact" className="bg-secondary/20 py-16 lg:py-24 border-t border-border/40">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="flex flex-col gap-6">
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-              Book an Appointment
-            </p>
-            <h2 className="text-balance font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Ready for your healthiest smile?
-            </h2>
-            <p className="text-pretty text-lg leading-relaxed text-muted-foreground">
-              Request an appointment and our team will confirm your visit within
-              one business day. We can&apos;t wait to meet you.
-            </p>
+        <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-center">
+          
+          {/* Left Column: Text & Info Details */}
+          <div className="flex flex-col gap-6 lg:col-span-7">
+            <ScrollReveal variant="fade-up" delay={100} duration={800}>
+              <p className="text-xs font-mono uppercase tracking-widest text-accent font-semibold">
+                Book an Appointment
+              </p>
+            </ScrollReveal>
+            
+            <ScrollReveal variant="fade-up" delay={200} duration={850}>
+              <h2 className="text-balance font-heading text-4xl font-normal tracking-tight text-foreground sm:text-5xl">
+                Ready for your <em className="italic text-primary font-normal">healthiest smile?</em>
+              </h2>
+            </ScrollReveal>
+            
+            <ScrollReveal variant="fade-up" delay={300} duration={900}>
+              <p className="text-pretty text-lg leading-relaxed text-muted-foreground font-light">
+                Request an appointment and our team will confirm your visit within
+                one business day. We can&apos;t wait to welcome you.
+              </p>
+            </ScrollReveal>
 
-            <ul className="mt-2 flex flex-col gap-5">
-              {info.map((item) => (
-                <li key={item.label} className="flex items-center gap-4">
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <ul className="mt-4 flex flex-col gap-5 w-full">
+              {info.map((item, index) => (
+                <ScrollReveal 
+                  key={item.label}
+                  variant="fade-up"
+                  delay={350 + index * 80}
+                  duration={750}
+                  className="flex items-center gap-4 group"
+                >
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-secondary border border-accent/20 text-accent group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300 shadow-sm">
                     <item.icon className="size-5" />
                   </span>
                   <div>
-                    <p className="text-sm text-muted-foreground">{item.label}</p>
-                    <p className="font-medium text-foreground">{item.value}</p>
+                    <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{item.label}</p>
+                    <p className="font-heading text-[17px] font-normal text-foreground mt-0.5">{item.value}</p>
                   </div>
-                </li>
+                </ScrollReveal>
               ))}
             </ul>
           </div>
 
-          <Card className="rounded-3xl border-border bg-card/60 shadow-xl backdrop-blur-sm flex flex-col justify-center">
-            <CardContent className="p-6 sm:p-8 flex flex-col items-center justify-center text-center gap-6 py-12">
-              <Show when="signed-out">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Mail className="size-7" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-heading text-2xl font-bold tracking-tight text-foreground">
-                    Book Your Appointment
-                  </h3>
-                  <p className="text-muted-foreground text-sm max-w-sm">
-                    To request a dental treatment or manage your scheduled visits, please sign in or register a patient account.
-                  </p>
-                </div>
-                <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
-                  <Button size="lg" className="rounded-full w-full max-w-[240px]">
-                    Sign In to Book
-                  </Button>
-                </SignInButton>
-              </Show>
-              <Show when="signed-in">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                  <CheckCircle2 className="size-7" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-heading text-2xl font-bold tracking-tight text-foreground">
-                    You are Signed In
-                  </h3>
-                  <p className="text-muted-foreground text-sm max-w-sm">
-                    Access your Patient Dashboard to request new treatments and manage your records.
-                  </p>
-                </div>
-                <Button
-                  render={<a href="/dashboard" />}
-                  nativeButton={false}
-                  size="lg"
-                  className="rounded-full w-full max-w-[240px]"
-                >
-                  Go to Dashboard
-                </Button>
-              </Show>
-            </CardContent>
-          </Card>
+          {/* Right Column: Auth booking card wrapper */}
+          <div className="lg:col-span-5 w-full flex justify-center lg:justify-end">
+            <ScrollReveal variant="scale-in" delay={300} duration={950} className="w-full max-w-[420px]">
+              <Card className="rounded-3xl border border-border/50 bg-background/50 shadow-2xl backdrop-blur-md flex flex-col justify-center glass-card relative overflow-hidden">
+                <CardContent className="p-8 sm:p-10 flex flex-col items-center justify-center text-center gap-6 py-12">
+                  <Show when="signed-out">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-accent border border-accent/15">
+                      <Mail className="size-7" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-heading text-2xl font-normal tracking-tight text-foreground">
+                        Book Your Appointment
+                      </h3>
+                      <p className="text-muted-foreground text-sm max-w-sm font-light leading-relaxed">
+                        To request a dental treatment or manage your scheduled visits, please sign in or register a patient account.
+                      </p>
+                    </div>
+                    <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
+                      <Button size="lg" className="rounded-full bg-primary hover:bg-primary/95 text-primary-foreground font-semibold px-8 py-6 shadow-lg transition-all hover:scale-[1.03] border border-accent/20 cursor-pointer w-full max-w-[240px]">
+                        Sign In to Book
+                      </Button>
+                    </SignInButton>
+                  </Show>
+                  <Show when="signed-in">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                      <CheckCircle2 className="size-7" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-heading text-2xl font-normal tracking-tight text-foreground">
+                        You are Signed In
+                      </h3>
+                      <p className="text-muted-foreground text-sm max-w-sm font-light leading-relaxed">
+                        Access your Patient Dashboard to request new treatments and manage your records.
+                      </p>
+                    </div>
+                    <Button
+                      render={<a href="/dashboard" />}
+                      nativeButton={false}
+                      size="lg"
+                      className="rounded-full bg-primary hover:bg-primary/95 text-primary-foreground font-semibold px-8 py-6 shadow-lg transition-all hover:scale-[1.03] border border-accent/20 cursor-pointer w-full max-w-[240px]"
+                    >
+                      Go to Dashboard
+                    </Button>
+                  </Show>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
+          </div>
+
         </div>
       </div>
     </section>

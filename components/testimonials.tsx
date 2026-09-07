@@ -1,5 +1,6 @@
 import { Star, Quote } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { ScrollReveal } from "@/components/scroll-reveal"
 
 const reviews = [
   {
@@ -24,36 +25,50 @@ const reviews = [
 
 export function Testimonials() {
   return (
-    <section id="reviews" className="py-16 lg:py-24">
+    <section id="reviews" className="py-16 lg:py-24 bg-background">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            Patient Stories
-          </p>
-          <h2 className="mt-3 text-balance font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Loved by our community
-          </h2>
-        </div>
+        
+        <ScrollReveal variant="fade-up" delay={100} duration={800}>
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-xs font-mono uppercase tracking-widest text-accent font-semibold">
+              Patient Stories
+            </span>
+            <h2 className="mt-3 text-balance font-heading text-4xl font-normal tracking-tight text-foreground sm:text-5xl">
+              Loved by <em className="italic text-primary font-normal">our community</em>
+            </h2>
+          </div>
+        </ScrollReveal>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {reviews.map((review) => (
-            <Card key={review.name} className="rounded-2xl">
-              <CardContent className="flex h-full flex-col gap-4 p-6">
-                <Quote className="size-8 text-primary/30" />
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="size-4 fill-accent text-accent" />
-                  ))}
-                </div>
-                <blockquote className="text-pretty leading-relaxed text-foreground">
-                  {review.quote}
-                </blockquote>
-                <figcaption className="mt-auto">
-                  <p className="font-semibold text-foreground">{review.name}</p>
-                  <p className="text-sm text-muted-foreground">{review.detail}</p>
-                </figcaption>
-              </CardContent>
-            </Card>
+        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+          {reviews.map((review, index) => (
+            <ScrollReveal
+              key={review.name}
+              variant="fade-up"
+              delay={200 + index * 100}
+              duration={800}
+              className="h-full"
+            >
+              <Card className="rounded-3xl border border-border/50 bg-background/50 hover:bg-background hover:shadow-2xl hover:border-accent/40 transition-all duration-300 relative group h-full flex flex-col">
+                <CardContent className="flex h-full flex-col gap-5 p-8">
+                  <Quote className="size-10 text-accent/25 group-hover:text-accent/45 transition-colors duration-300" />
+                  
+                  <div className="flex text-accent">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="size-4 fill-accent" />
+                    ))}
+                  </div>
+                  
+                  <blockquote className="text-pretty leading-relaxed text-foreground/90 font-light text-[15px] italic">
+                    &ldquo;{review.quote}&rdquo;
+                  </blockquote>
+                  
+                  <figcaption className="mt-auto pt-6 border-t border-border/20">
+                    <p className="font-heading text-lg font-normal text-foreground">{review.name}</p>
+                    <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-0.5">{review.detail}</p>
+                  </figcaption>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
           ))}
         </div>
       </div>

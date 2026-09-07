@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation"
 import { auth, currentUser } from "@clerk/nextjs/server"
-import { SiteHeader } from "@/components/site-header"
+import { Header } from "@/components/ui/header-2"
 import { Hero } from "@/components/hero"
 import { Services } from "@/components/services"
+import { SmileSlider } from "@/components/smile-slider"
+import { SmileQuiz } from "@/components/smile-quiz"
 import { About } from "@/components/about"
 import { Team } from "@/components/team"
 import { Testimonials } from "@/components/testimonials"
@@ -24,10 +26,12 @@ export default async function Page() {
 
   return (
     <>
-      <SiteHeader />
+      <Header />
       <main>
         <Hero />
         <Services />
+        <SmileSlider />
+        <SmileQuiz />
         <About />
         <Team />
         <Testimonials />

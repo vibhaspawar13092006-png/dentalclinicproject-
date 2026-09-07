@@ -30,17 +30,26 @@ interface Appointment {
   phone: string
   service: string
   message: string
+  status?: "pending" | "confirmed" | "cancelled"
+  scheduledDate?: string
+  scheduledTime?: string
+  doctorNotes?: string
   createdAt: string
 }
 
 const services = [
   "General Dentistry",
   "Cosmetic Dentistry",
-  "Orthodontics",
   "Teeth Whitening",
+  "Restorative Care",
+  "Pediatric Dentistry",
+  "Emergency Care",
   "Dental Implants",
-  "Root Canal Therapy",
-  "Oral Surgery",
+  "Teeth Straightening",
+  "Single Visit Root Canal Treatment",
+  "Painless Dental Extractions",
+  "Teeth Scanning",
+  "Laser Dentistry & Minor Surgery",
 ]
 
 export default function UserDashboard() {
@@ -48,6 +57,10 @@ export default function UserDashboard() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
   const [isPending, startTransition] = useTransition()
+
+  const nextConfirmedAppointment = appointments.find(
+    (app) => app.status === "confirmed" && app.scheduledDate
+  )
 
   // Form State
   const [name, setName] = useState("")
@@ -62,6 +75,77 @@ export default function UserDashboard() {
   // Role toggle state
   const [togglingRole, setTogglingRole] = useState(false)
   const [role, setRole] = useState<string>("user")
+
+  // Reschedule & Cancel States
+  const [reschedulingId, setReschedulingId] = useState<string | null>(null)
+  const [reschedDate, setReschedDate] = useState("")
+  const [reschedTime, setReschedTime] = useState("")
+  const [reschedMessage, setReschedMessage] = useState("")
+  const [actionLoading, setActionLoading] = useState(false)
+
+  const handleCancelRequest = async (id: string) => {
+    if (!confirm("Are you sure you want to request cancellation for this appointment?")) {
+      return
+    }
+    setActionLoading(true)
+    try {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "cancel_requested" }),
+      })
+
+      if (res.ok) {
+        alert("Cancellation request submitted successfully!")
+        fetchAppointments()
+      } else {
+        alert("Failed to submit request.")
+      }
+    } catch (err) {
+      alert("Error submitting cancellation request.")
+    } finally {
+      setActionLoading(false)
+    }
+  }
+
+  const handleRescheduleSubmit = async (id: string) => {
+    if (!reschedDate) {
+      alert("Please select a date.")
+      return
+    }
+    setActionLoading(true)
+    try {
+      const res = await fetch(`/api/appointments/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: "reschedule_requested",
+          rescheduleDate: reschedDate,
+          rescheduleTime: reschedTime || null,
+          rescheduleMessage: reschedMessage,
+        }),
+      })
+
+      if (res.ok) {
+        alert("Reschedule request submitted successfully!")
+        setReschedulingId(null)
+        setReschedDate("")
+        setReschedTime("")
+        setReschedMessage("")
+        fetchAppointments()
+      } else {
+        alert("Failed to submit request.")
+      }
+    } catch (err) {
+      alert("Error submitting reschedule request.")
+    } finally {
+      setActionLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -223,6 +307,112 @@ export default function UserDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Confirmed Next Appointment Schedule Callout */}
+        {nextConfirmedAppointment && (
+          <Card className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 shadow-lg relative overflow-hidden">
+            <CardContent className="p-6 md:p-8 space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+                    <CheckCircle className="size-6 text-emerald-600 animate-bounce" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground font-heading">
+                      Next Confirmed Appointment Scheduled
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      Your upcoming dental treatment details confirmed by the medical team.
+                    </p>
+                  </div>
+                </div>
+                <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  Confirmed
+                </span>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-3 bg-card/60 p-5 rounded-2xl border border-border/50">
+                <div>
+                  <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                    Dental Treatment
+                  </span>
+                  <span className="font-semibold text-foreground text-sm">
+                    {nextConfirmedAppointment.service}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                    Scheduled Date
+                  </span>
+                  <span className="font-semibold text-foreground text-sm flex items-center gap-1.5">
+                    <Calendar className="size-4 text-emerald-600" />
+                    {nextConfirmedAppointment.scheduledDate}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                    Scheduled Time
+                  </span>
+                  <span className="font-semibold text-foreground text-sm flex items-center gap-1.5">
+                    <Clock className="size-4 text-emerald-600" />
+                    {nextConfirmedAppointment.scheduledTime || "To be confirmed"}
+                  </span>
+                </div>
+              </div>
+
+              {nextConfirmedAppointment.doctorNotes && (
+                <div className="bg-emerald-500/5 border-l-4 border-emerald-500 p-4 rounded-r-2xl">
+                  <span className="block text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
+                    Doctor Timetable Instructions:
+                  </span>
+                  <p className="text-sm text-foreground italic whitespace-pre-wrap">
+                    "{nextConfirmedAppointment.doctorNotes}"
+                  </p>
+                </div>
+              )}
+
+              {/* Treatment Timeline Progress Tracker */}
+              <div className="mt-6 pt-6 border-t border-border/40 space-y-4">
+                <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Treatment Progress Timeline:
+                </span>
+                
+                <div className="relative flex items-center justify-between">
+                  {/* Background Line */}
+                  <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-muted dark:bg-muted/30 z-0"></div>
+                  {/* Highlighted Complete Line */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-emerald-500 z-0 transition-all duration-500" style={{ width: "50%" }}></div>
+
+                  {/* Steps */}
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="size-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-md">✓</div>
+                    <span className="text-[10px] font-bold text-foreground mt-1.5">Request</span>
+                  </div>
+
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="size-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm shadow-md">✓</div>
+                    <span className="text-[10px] font-bold text-foreground mt-1.5">Confirmed</span>
+                  </div>
+
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="size-8 rounded-full bg-emerald-500 text-white border-2 border-emerald-500 animate-pulse flex items-center justify-center font-bold text-sm shadow-md">3</div>
+                    <span className="text-[10px] font-bold text-emerald-600 mt-1.5">Preparation</span>
+                  </div>
+
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="size-8 rounded-full bg-muted text-muted-foreground border-2 border-border flex items-center justify-center font-bold text-sm">4</div>
+                    <span className="text-[10px] font-medium text-muted-foreground mt-1.5">Visit</span>
+                  </div>
+
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="size-8 rounded-full bg-muted text-muted-foreground border-2 border-border flex items-center justify-center font-bold text-sm">5</div>
+                    <span className="text-[10px] font-medium text-muted-foreground mt-1.5">Follow-up</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Row */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -394,8 +584,26 @@ export default function UserDashboard() {
                             Dental Treatment Request
                           </h3>
                         </div>
-                        <span className="inline-flex items-center rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
-                          Pending Confirmation
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          app.status === "confirmed"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                            : app.status === "cancelled"
+                              ? "bg-destructive/10 text-destructive"
+                              : app.status === "cancel_requested"
+                                ? "bg-red-500/10 text-red-600"
+                                : app.status === "reschedule_requested"
+                                  ? "bg-blue-500/10 text-blue-600"
+                                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                        }`}>
+                          {app.status === "confirmed"
+                            ? "Confirmed"
+                            : app.status === "cancelled"
+                              ? "Cancelled"
+                              : app.status === "cancel_requested"
+                                ? "Cancellation Requested"
+                                : app.status === "reschedule_requested"
+                                  ? "Reschedule Requested"
+                                  : "Pending Confirmation"}
                         </span>
                       </div>
 
@@ -422,6 +630,135 @@ export default function UserDashboard() {
                           <p className="text-sm bg-muted/40 p-3 rounded-xl border border-border/30 text-foreground">
                             {app.message}
                           </p>
+                        </div>
+                      )}
+
+                      {app.status === "confirmed" && app.scheduledDate && (
+                        <div className="border-t border-border/40 pt-3 mt-3 space-y-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 mb-1">
+                            Confirmed Appointment Schedule:
+                          </p>
+                          <div className="flex flex-wrap gap-4 items-center bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/20 text-sm">
+                            <div className="flex items-center gap-1.5 text-foreground">
+                              <Calendar className="size-4 text-emerald-600" />
+                              <span className="font-semibold">{app.scheduledDate}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-foreground">
+                              <Clock className="size-4 text-emerald-600" />
+                              <span className="font-semibold">{app.scheduledTime || "To be confirmed"}</span>
+                            </div>
+                            {app.doctorNotes && (
+                              <div className="w-full text-xs text-muted-foreground mt-2 border-t border-border/20 pt-1.5">
+                                <span className="font-bold text-foreground block mb-0.5">Doctor Instructions:</span>
+                                {app.doctorNotes}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Reschedule Propose Details display if pending doctor review */}
+                      {app.status === "reschedule_requested" && app.rescheduleDate && (
+                        <div className="border-t border-border/40 pt-3 mt-3 space-y-2">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/80 mb-1">
+                            Reschedule Proposed (Pending Review):
+                          </p>
+                          <div className="flex flex-wrap gap-4 items-center bg-blue-500/5 p-3 rounded-xl border border-blue-500/20 text-sm">
+                            <div className="flex items-center gap-1.5 text-foreground">
+                              <Calendar className="size-4 text-blue-600" />
+                              <span className="font-semibold">{app.rescheduleDate}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-foreground">
+                              <Clock className="size-4 text-blue-600" />
+                              <span className="font-semibold">{app.rescheduleTime || "No specific time"}</span>
+                            </div>
+                            {app.rescheduleMessage && (
+                              <div className="w-full text-xs text-muted-foreground mt-2 border-t border-border/20 pt-1.5">
+                                <span className="font-bold text-foreground block mb-0.5">Patient Reason:</span>
+                                {app.rescheduleMessage}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Patient Actions: Reschedule / Cancel */}
+                      {app.status !== "cancelled" && app.status !== "cancel_requested" && (
+                        <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap gap-2 justify-end">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={actionLoading}
+                            onClick={() => {
+                              if (reschedulingId === app._id) {
+                                setReschedulingId(null)
+                              } else {
+                                setReschedulingId(app._id)
+                                setReschedDate("")
+                                setReschedTime("")
+                                setReschedMessage("")
+                              }
+                            }}
+                            className="rounded-xl font-medium cursor-pointer"
+                          >
+                            {reschedulingId === app._id ? "Cancel Reschedule" : "Request Reschedule"}
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleCancelRequest(app._id)}
+                            disabled={actionLoading}
+                            className="rounded-xl font-medium cursor-pointer"
+                          >
+                            Request Cancel
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Reschedule Input Form */}
+                      {reschedulingId === app._id && (
+                        <div className="mt-3 p-4 bg-muted/40 rounded-2xl border border-border/50 space-y-4">
+                          <h4 className="text-sm font-bold text-foreground">Propose New Schedule</h4>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="space-y-1">
+                              <label className="text-xs font-semibold text-muted-foreground">New Date</label>
+                              <input
+                                type="date"
+                                value={reschedDate}
+                                onChange={(e) => setReschedDate(e.target.value)}
+                                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary text-foreground"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs font-semibold text-muted-foreground">New Time (Optional)</label>
+                              <input
+                                type="time"
+                                value={reschedTime}
+                                onChange={(e) => setReschedTime(e.target.value)}
+                                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary text-foreground"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-muted-foreground">Reason for change</label>
+                            <input
+                              type="text"
+                              placeholder="E.g., Work conflict, sick..."
+                              value={reschedMessage}
+                              onChange={(e) => setReschedMessage(e.target.value)}
+                              className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary text-foreground"
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <Button
+                              size="sm"
+                              disabled={actionLoading}
+                              onClick={() => handleRescheduleSubmit(app._id)}
+                              className="rounded-xl"
+                            >
+                              {actionLoading ? "Submitting..." : "Submit Propose"}
+                            </Button>
+                          </div>
                         </div>
                       )}
                     </CardContent>
