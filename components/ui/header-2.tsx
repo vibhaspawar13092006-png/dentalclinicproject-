@@ -6,6 +6,7 @@ import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
 import { useScroll } from '@/components/ui/use-scroll';
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
+import { Phone } from "lucide-react";
 
 export function Header() {
 	const [open, setOpen] = React.useState(false);
@@ -70,6 +71,13 @@ export function Header() {
 				</div>
 
 				<div className="hidden items-center gap-4 md:flex">
+					<a
+						href="tel:+917304252372"
+						className="text-xs font-mono tracking-wider font-semibold text-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+					>
+						<Phone className="size-3.5 text-accent" />
+						+91 7304252372
+					</a>
 					<ThemeToggle />
 					<Button
 						render={<a href="#contact" />}
@@ -97,6 +105,13 @@ export function Header() {
 				</div>
 
 				<div className="flex items-center gap-2 md:hidden">
+					<a
+						href="tel:+917304252372"
+						aria-label="Call clinic"
+						className="flex size-9 items-center justify-center rounded-full bg-secondary border border-accent/20 text-accent"
+					>
+						<Phone className="size-4" />
+					</a>
 					<ThemeToggle />
 					<Button size="icon" variant="outline" onClick={() => setOpen(!open)} className="rounded-full size-10">
 						<MenuToggleIcon open={open} className="size-5" duration={300} />
@@ -130,6 +145,13 @@ export function Header() {
 						))}
 					</div>
 					<div className="flex flex-col gap-3">
+						<a
+							href="tel:+917304252372"
+							className="flex items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold border border-accent/25 bg-secondary text-foreground shadow-sm"
+						>
+							<Phone className="size-4 text-accent" />
+							Call Us: +91 7304252372
+						</a>
 						<Button
 							render={<a href="#contact" onClick={() => setOpen(false)} />}
 							nativeButton={false}
